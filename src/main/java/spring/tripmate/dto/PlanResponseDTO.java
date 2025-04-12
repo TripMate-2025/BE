@@ -19,6 +19,8 @@ public class PlanResponseDTO {
     @AllArgsConstructor
     public static class PlanDTO{
         @NotNull
+        private Long planId;
+        @NotNull
         private String title;
         @NotNull
         private Date startDate;
@@ -33,11 +35,13 @@ public class PlanResponseDTO {
 
         private List<StyleType> style;
         @NotNull
-        private List<PlanRequestDTO.UpdateDTO.PlaceDTO> places;
+        private List<PlaceDTO> places;
 
         @Getter
         @Setter
         public static class PlaceDTO {
+            @NotNull
+            private Long placeId;
             @NotBlank
             private String name;
             @NotNull

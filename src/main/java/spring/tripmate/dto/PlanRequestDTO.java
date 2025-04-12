@@ -38,22 +38,37 @@ public class PlanRequestDTO {
     @AllArgsConstructor
     public static class UpdateDTO{
         private String country;
+
         private String city;
+
         private CompanionType companion;
+
         private List<StyleType> style;
+
         private Date startDate;
+
         private Date endDate;
+
         private List<PlaceDTO> places;
 
         @Getter
         @Setter
         public static class PlaceDTO {
+            @NotNull
+            private Long placeId;
+
             private String name;
+
             private CategoryType category;
+
             private String description;
+
             private LocalDateTime time;
+
             private String address;
+
             private Double latitude;
+
             private Double longitude;
         }
     }
