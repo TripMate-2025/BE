@@ -2,6 +2,7 @@ package spring.tripmate.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import spring.tripmate.domain.enums.CategoryType;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,6 +22,10 @@ public class TravelPlace {
 
     @Column(nullable = false, length = 100)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CategoryType category;
 
     private String description;
 
