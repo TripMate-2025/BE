@@ -16,12 +16,12 @@ public class PostLike extends BaseEntity {
     @EmbeddedId
     private PostLikeId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("consumerId")
     @JoinColumn(name="consumer_id", nullable = false)
     private Consumer consumer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("postId")
     @JoinColumn(name="post_id", nullable = false)
     private Post post;

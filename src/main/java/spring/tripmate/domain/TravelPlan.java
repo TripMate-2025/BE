@@ -38,7 +38,7 @@ public class TravelPlan extends BaseEntity {
     @OneToOne(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private TravelRoom room;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consumer_id", nullable = false)
     private Consumer consumer;
 

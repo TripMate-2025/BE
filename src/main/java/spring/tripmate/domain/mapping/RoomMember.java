@@ -17,12 +17,12 @@ public class RoomMember extends BaseEntity {
     @EmbeddedId
     private RoomMemberId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("consumerId")
     @JoinColumn(name="consumer_id", nullable = false)
     private Consumer member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("roomId")
     @JoinColumn(name="room_id", nullable = false)
     private TravelRoom room;
