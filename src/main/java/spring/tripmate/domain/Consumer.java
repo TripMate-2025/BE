@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import spring.tripmate.domain.common.BaseEntity;
-import spring.tripmate.domain.enums.ProvidertType;
+import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.domain.mapping.PostLike;
 import spring.tripmate.domain.mapping.RoomMember;
 
@@ -39,8 +39,8 @@ public class Consumer extends BaseEntity {
     private String profile;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ProvidertType provider;
+    @Column(columnDefinition = "VARCHAR(20)")
+    private ProviderType provider;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;

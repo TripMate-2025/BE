@@ -43,7 +43,7 @@ public class TravelPlace {
     @Column(nullable = false)
     private Integer dayNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
     private TravelPlan plan;
 
