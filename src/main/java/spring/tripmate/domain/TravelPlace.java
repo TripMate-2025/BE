@@ -24,7 +24,7 @@ public class TravelPlace {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(30)")
     private CategoryType category;
 
     private String description;
