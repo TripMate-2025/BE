@@ -10,7 +10,9 @@ public class ConsumerRequestDTO {
     @AllArgsConstructor
     public static class RegisterDTO {
         @NotBlank
-        private String username;
+        private String nickname;
+        @NotBlank
+        private String name;
         @NotBlank @Email
         private String email;
         @NotBlank
