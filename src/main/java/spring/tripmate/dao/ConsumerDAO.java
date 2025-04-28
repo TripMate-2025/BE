@@ -10,8 +10,4 @@ public interface ConsumerDAO extends JpaRepository<Consumer, Long>{
     Consumer findByEmail(String email);
     
     Page<Consumer> findAll(PageRequest pageRequest);
-    
-    void delete(Consumer consumer);
-    
-    void deleteById(Long consumerId);
 }
