@@ -30,10 +30,10 @@ public class Consumer extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String nickname;
 
     private String profile;
@@ -42,6 +42,7 @@ public class Consumer extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(20)")
     private ProviderType provider;
 
+    @Column(columnDefinition = "TIMESTAMP(6)")
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
