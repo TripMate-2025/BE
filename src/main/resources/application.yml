@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@dblab.dongduk.ac.kr:1521/orclpdb
-    username: username
-    password: password
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   sql:
     init:
       mode: never
