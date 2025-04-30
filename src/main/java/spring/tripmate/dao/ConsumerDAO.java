@@ -8,6 +8,10 @@ import spring.tripmate.domain.Consumer;
 public interface ConsumerDAO extends JpaRepository<Consumer, Long>{
 	
     Consumer findByEmail(String email);
+    boolean existsByNickname(String nickname);
+    boolean existsByEmail(String email);
+
     
-    Page<Consumer> findAll(PageRequest pageRequest);
+    // JpaRepository가 제공해서 지워도됨
+    //Page<Consumer> findAll(PageRequest pageRequest);
 }
