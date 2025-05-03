@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.tripmate.dao.ConsumerDAO;
 import spring.tripmate.domain.Consumer;
+import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
 
@@ -28,6 +29,7 @@ public class ConsumerService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .provider(ProviderType.LOCAL)
                 .build();
 
         Consumer savedConsumer = consumerDAO.save(consumer);
@@ -71,5 +73,11 @@ public class ConsumerService {
     public boolean existsByEmail(String email) {
         return consumerDAO.existsByEmail(email);
     }
+
+    public Consumer findByEmail(String email) {
+        return Optional.ofNullable(consumerDAO.findByEmail(email))
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
 
 }
