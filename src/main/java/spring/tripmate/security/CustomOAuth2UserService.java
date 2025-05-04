@@ -29,10 +29,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(userRequest);
 
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // "google"
-        String email = oauthUser.getAttribute("email");
-        String name = oauthUser.getAttribute("name");
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // "google" or "naver"
+        Map<String, Object> originalAttributes = oauthUser.getAttributes();
 
+        String email;
+        String name;
+
+        if ("naver".equals(provider)) {
+            // 🔥 네이버는 사용자 정보가 response 키 내부에 있음
+            Map<String, Object> response = (Map<String, Object>) originalAttributes.get("response");
+            email = (String) response.get("email");
+            name = (String) response.get("name");
+        } else {
+            // 구글, 기본
+            email = oauthUser.getAttribute("email");
+            name = oauthUser.getAttribute("name");
+        }
+        
         Consumer consumer = Optional.ofNullable(consumerDAO.findByEmail(email))
                 .orElseGet(() -> {
                     Consumer newUser = Consumer.builder()
@@ -47,7 +60,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         String jwt = jwtProvider.createToken(email, "ROLE_USER");
 
-        Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("email", email);
+        attributes.put("name", name);
         attributes.put("jwt", jwt);
 
         return new DefaultOAuth2User(

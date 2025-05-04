@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import spring.tripmate.security.JwtProvider;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -23,18 +24,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-    	System.out.println("✅ 성공 핸들러 진입!");
+        System.out.println("성공 핸들러 진입!");
 
-    	OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
-        
-        // 👉 기본 role은 "USER"로 가정 (필요하면 oAuth2User에서 직접 가져올 수도 있음)
-        String role = "USER";
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getAttribute("email"); 
 
-        // ✅ 실제 JWT 생성
-        String jwt = jwtProvider.createToken(email, role);
+        if (email == null) {
+            throw new RuntimeException("로그인 실패: 이메일 정보가 없습니다.");
+        }
 
-        // ✅ 프론트로 리다이렉트 + token 전달
+        String jwt = jwtProvider.createToken(email, "USER");
+
         String redirectUrl = UriComponentsBuilder
                 .fromUriString("http://localhost:3000")
                 .queryParam("token", jwt)
@@ -43,4 +43,5 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
+
 }
