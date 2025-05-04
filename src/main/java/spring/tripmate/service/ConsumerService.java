@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import spring.tripmate.dao.ConsumerDAO;
 import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.enums.ProviderType;
@@ -30,6 +32,7 @@ public class ConsumerService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .provider(ProviderType.LOCAL)
+                .nicknameSet(true)
                 .build();
 
         Consumer savedConsumer = consumerDAO.save(consumer);
@@ -79,5 +82,16 @@ public class ConsumerService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
+    @Transactional
+    public void updateNickname(String email, String newNickname) {
+        // 중복 검사
+        if (existsByNickname(newNickname)) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+        }
+
+        Consumer consumer = findByEmail(email);
+        consumer.setNickname(newNickname);
+        consumer.setNicknameSet(true);
+    }
 
 }

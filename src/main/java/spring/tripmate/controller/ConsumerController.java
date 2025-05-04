@@ -72,9 +72,28 @@ public class ConsumerController {
                 .name(consumer.getName())
                 .email(consumer.getEmail())
                 .token(token)
+                .nicknameSet(consumer.getNicknameSet())
                 .build();
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/nickname")
+    public ResponseEntity<?> updateNickname(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> request
+    ) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtUtil.getEmailFromToken(token);
+        String newNickname = request.get("nickname");
+
+        try {
+            consumerService.updateNickname(email, newNickname);
+            return ResponseEntity.ok(Map.of("message", "닉네임이 성공적으로 변경되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
 }
