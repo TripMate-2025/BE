@@ -36,10 +36,18 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String name;
 
         if ("naver".equals(provider)) {
-            // 🔥 네이버는 사용자 정보가 response 키 내부에 있음
+            // 네이버는 사용자 정보가 response 키 내부에 있음
             Map<String, Object> response = (Map<String, Object>) originalAttributes.get("response");
             email = (String) response.get("email");
             name = (String) response.get("name");
+        } else if ("kakao".equals(provider)) {
+            // 이메일 없이 카카오 고유 ID 기반 식별자 생성
+            String kakaoId = String.valueOf(originalAttributes.get("id"));
+            Map<String, Object> kakaoAccount = (Map<String, Object>) originalAttributes.get("kakao_account");
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+            email = kakaoId + "@kakao.com"; // 가짜 이메일
+            name = (String) profile.get("nickname");
         } else {
             // 구글, 기본
             email = oauthUser.getAttribute("email");
