@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import spring.tripmate.domain.Consumer;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
+import spring.tripmate.security.JwtProvider;
 import spring.tripmate.security.JwtUtil;
 import spring.tripmate.service.ConsumerService;
 
@@ -23,7 +24,7 @@ import jakarta.validation.Valid;
 public class ConsumerController {
 
     private final ConsumerService consumerService;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/register")
     public ResponseEntity<ConsumerResponseDTO.RegisterDTO> register(
@@ -60,7 +61,7 @@ public class ConsumerController {
     ) {
         // 1. 토큰 파싱 (Bearer 제거)
         String token = authHeader.replace("Bearer ", "");
-        String email = jwtUtil.getEmailFromToken(token);
+        String email = jwtProvider.getEmailFromToken(token);
 
         // 2. 이메일로 사용자 조회
         Consumer consumer = consumerService.findByEmail(email);
@@ -84,7 +85,7 @@ public class ConsumerController {
             @RequestBody Map<String, String> request
     ) {
         String token = authHeader.replace("Bearer ", "");
-        String email = jwtUtil.getEmailFromToken(token);
+        String email = jwtProvider.getEmailFromToken(token);
         String newNickname = request.get("nickname");
 
         try {

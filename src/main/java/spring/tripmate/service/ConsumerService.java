@@ -13,6 +13,7 @@ import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
+import spring.tripmate.security.JwtProvider;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class ConsumerService {
 
     private final ConsumerDAO consumerDAO;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     public ConsumerResponseDTO.RegisterDTO register(ConsumerRequestDTO.RegisterDTO request) {
         if (consumerDAO.findByEmail(request.getEmail()) != null) {
@@ -55,16 +57,15 @@ public class ConsumerService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 토큰은 아직 시스템에 구현 안 했으니까 임시로 "fake-token" 줌
-        String fakeToken = "fake-token"; 
+        String token = jwtProvider.createToken(consumer.getEmail(), "USER");
 
-        // DTO로 리턴
         return ConsumerResponseDTO.LoginDTO.builder()
                 .id(consumer.getId())
                 .nickname(consumer.getNickname())
                 .name(consumer.getName())
                 .email(consumer.getEmail())
-                .token(fakeToken)
+                .token(token)
+                .nicknameSet(consumer.getNicknameSet())
                 .build();
     }
 
