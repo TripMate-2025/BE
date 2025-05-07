@@ -28,6 +28,7 @@ public class ConsumerResponseDTO {
         private String name;
         private String email;
         private String token; 
+        private Boolean nicknameSet;
     }
     
     @Builder
