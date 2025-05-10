@@ -21,6 +21,9 @@ public class TravelRoom extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 255)
+    private String name;
+
     @OneToOne
     @JoinColumn(name="plan_id", nullable = false)
     private TravelPlan plan;
