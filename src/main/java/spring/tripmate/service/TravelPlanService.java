@@ -130,6 +130,22 @@ public class TravelPlanService {
         return TravelPlanConverter.toPlanDTO(plan, places);
     }
 
+    public List<PlanResponseDTO.PlanDTO> getPlansByTheme(String theme, int page, int size){
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<TravelPlan> plans = planDAO.findByThemeContaining(theme, pageable);
+
+        return plans.stream()
+                .map(plan -> {
+                    List<TravelPlace> places = plan.getPlaces();
+
+                    //PlanDTO로 변환
+                    return TravelPlanConverter.toPlanDTO(plan, places);
+                })
+                .collect(Collectors.toList());
+    }
+
     private String cleanMarkdownJson(String raw) {
         if (raw == null) return "";
 
