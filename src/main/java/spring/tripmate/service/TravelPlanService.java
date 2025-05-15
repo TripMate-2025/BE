@@ -30,6 +30,7 @@ import spring.tripmate.util.RedisUtil;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,6 +113,12 @@ public class TravelPlanService {
                 .toList();
 
         return TravelPlanConverter.toPlanDTO(plan, places);
+    }
+
+    //room 기능
+    public PlanResponseDTO.UpdateDTO updatePlan(Long planId, PlanRequestDTO.UpdateDTO request){
+
+        return null;
     }
 
     private String cleanMarkdownJson(String raw) {

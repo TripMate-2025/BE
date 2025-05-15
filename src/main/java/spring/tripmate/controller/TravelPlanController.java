@@ -20,4 +20,11 @@ public class TravelPlanController {
         return ApiResponse.onSuccess(response);
     }
 
+    @PatchMapping("/{planId}")
+    public ApiResponse<PlanResponseDTO.UpdateDTO> updatePlan(@PathVariable("planId") Long planId,
+                                                             @Valid @ModelAttribute PlanRequestDTO.UpdateDTO request){
+        PlanResponseDTO.UpdateDTO response = travelPlanService.updatePlan(planId, request);
+        return ApiResponse.onSuccess(response);
+    }
+
 }
