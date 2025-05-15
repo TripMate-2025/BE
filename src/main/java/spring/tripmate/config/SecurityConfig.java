@@ -32,7 +32,8 @@ public class SecurityConfig {
                     "/login",             // ✅ 충돌 방지
                     "/oauth-success",
                     "/oauth2/**",
-                    "/consumers/**"
+                    "/consumers/**",
+                    "/plans/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
