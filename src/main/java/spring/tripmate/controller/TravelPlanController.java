@@ -27,4 +27,10 @@ public class TravelPlanController {
         return ApiResponse.onSuccess(response);
     }
 
+    @GetMapping("/{planId}")
+    public ApiResponse<PlanResponseDTO.PlanDTO> getPlanById(@PathVariable("planId") Long planId){
+        PlanResponseDTO.PlanDTO response = travelPlanService.getPlan(planId);
+        return ApiResponse.onSuccess(response);
+    }
+
 }

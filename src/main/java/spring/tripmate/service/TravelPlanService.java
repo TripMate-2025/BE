@@ -21,6 +21,7 @@ import spring.tripmate.domain.TravelPlan;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
 import spring.tripmate.domain.apiPayload.exception.handler.GeminiCallFailedException;
 import spring.tripmate.domain.apiPayload.exception.handler.InvalidGeminiResponseException;
+import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
 import spring.tripmate.domain.enums.StyleType;
 import spring.tripmate.dto.GooglePlaceResponseDTO;
 import spring.tripmate.dto.PlanRequestDTO;
@@ -119,6 +120,14 @@ public class TravelPlanService {
     public PlanResponseDTO.UpdateDTO updatePlan(Long planId, PlanRequestDTO.UpdateDTO request){
 
         return null;
+    }
+
+    public PlanResponseDTO.PlanDTO getPlan(Long planId){
+        TravelPlan plan = planDAO.findById(planId)
+                .orElseThrow(() -> new PlanHandler(ErrorStatus.PLAN_NOT_FOUND));
+        List<TravelPlace> places = plan.getPlaces();
+
+        return TravelPlanConverter.toPlanDTO(plan, places);
     }
 
     private String cleanMarkdownJson(String raw) {

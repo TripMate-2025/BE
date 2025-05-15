@@ -19,7 +19,9 @@ public enum ErrorStatus implements BaseErrorCode {
     //TO DO : 개발하면서 필요한 에러 상수 추가하기
     GEMINI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "GEMINI5001", "Gemini API 호출 실패"),
     INVALID_GEMINI_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "GEMINI5002", "Gemini 응답 파싱 실패"),
-    INVALID_GOOGLE_PLACE(HttpStatus.BAD_REQUEST, "GOOGLE4001", "해당되는 장소를 찾을 수 없습니다.");
+    INVALID_GOOGLE_PLACE(HttpStatus.BAD_REQUEST, "GOOGLE4001", "해당되는 장소를 찾을 수 없습니다."),
+
+    PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PLAN4001", "해당되는 계획이 없습니다.");
 
     //테스트 상수
     //TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트");
