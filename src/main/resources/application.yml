@@ -60,3 +60,20 @@ spring:
             user-name-attribute: id
   jwt:
     secret: ${JWT_SECRET}
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
+gemini:
+  api:
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+    key: ${GEMINI_API_KEY}
+
+google:
+  places:
+    api:
+      url: https://maps.googleapis.com/maps/api/place/textsearch/json
+      key: ${GOOGLE_API_KEY}

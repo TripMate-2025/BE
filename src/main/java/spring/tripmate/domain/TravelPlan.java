@@ -32,7 +32,7 @@ public class TravelPlan extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String destination;
 
-    @Column(length = 50)
+    @Column(length = 150)
     private String theme;
 
     @OneToOne(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
