@@ -21,6 +21,7 @@ import spring.tripmate.domain.TravelPlan;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
 import spring.tripmate.domain.apiPayload.exception.handler.GeminiCallFailedException;
 import spring.tripmate.domain.apiPayload.exception.handler.InvalidGeminiResponseException;
+import spring.tripmate.domain.apiPayload.exception.handler.InvalidGooglePlaceException;
 import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
 import spring.tripmate.domain.enums.StyleType;
 import spring.tripmate.dto.GooglePlaceResponseDTO;
@@ -65,7 +66,19 @@ public class TravelPlanService {
 
             //좌표 및 주소 보정
             plan.getPlaces().forEach(placeDto -> {
-                GooglePlaceResponseDTO.Result location = googlePlaceClient.getLocation(placeDto.getName());
+                GooglePlaceResponseDTO response = googlePlaceClient.getLocation(placeDto.getName());
+
+                //검색 결과가 없는 경우->도로명 주소로 검색
+                if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
+                    response = googlePlaceClient.getLocation(placeDto.getAddress());
+                }
+
+                //도로명 주소로 검색 후에도 검색 결과가 없는 경우->예외 발생
+                if (response == null || response.getResults() == null || response.getResults().isEmpty()){
+                    throw new InvalidGooglePlaceException(ErrorStatus.INVALID_GOOGLE_PLACE);
+                }
+
+                GooglePlaceResponseDTO.Result location = response.getResults().get(0);
                 if (location != null) {
                     placeDto.setLatitude(location.getGeometry().getLocation().getLat());
                     placeDto.setLongitude(location.getGeometry().getLocation().getLng());

@@ -1,5 +1,6 @@
 package spring.tripmate.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
-import spring.tripmate.domain.apiPayload.exception.handler.InvalidGooglePlaceException;
+import spring.tripmate.domain.apiPayload.exception.handler.InvalidGoogleResponseException;
 import spring.tripmate.dto.GooglePlaceResponseDTO;
 
 import java.net.URI;
@@ -28,7 +29,7 @@ public class GooglePlaceClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public GooglePlaceResponseDTO.Result getLocation(String query) {
+    public GooglePlaceResponseDTO getLocation(String query) {
         URI requestUrl = UriComponentsBuilder
                 .fromHttpUrl(apiUrl)
                 .queryParam("query", query)
@@ -36,35 +37,30 @@ public class GooglePlaceClient {
                 .build(false)
                 .toUri();
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0");
+        headers.set("Accept-Language", "ko");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> raw = restTemplate.exchange(
+                requestUrl, HttpMethod.GET, entity, String.class
+        );
+
+        // 응답 바디 추출
+        String rawJson = raw.getBody();
+
+        // JSON 파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        GooglePlaceResponseDTO response = null;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", "Mozilla/5.0");
-            headers.set("Accept-Language", "ko");
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<String> raw = restTemplate.exchange(
-                    requestUrl, HttpMethod.GET, entity, String.class
-            );
-
-            // 응답 바디 추출
-            String rawJson = raw.getBody();
-
-            // JSON 파싱
-            ObjectMapper objectMapper = new ObjectMapper();
-            GooglePlaceResponseDTO response = objectMapper.readValue(rawJson, GooglePlaceResponseDTO.class);
-
-            // 3. 결과가 비어있으면 예외 발생
-            if (response.getResults() == null || response.getResults().isEmpty()) {
-                throw new InvalidGooglePlaceException(ErrorStatus.INVALID_GOOGLE_PLACE);
-            }
-
-            return response.getResults().get(0);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new InvalidGooglePlaceException(ErrorStatus.INVALID_GOOGLE_PLACE);
+            response = objectMapper.readValue(rawJson, GooglePlaceResponseDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new InvalidGoogleResponseException(ErrorStatus.INVALID_GOOGLE_RESPONSE);
         }
+
+        return response;
+
     }
 }
 
