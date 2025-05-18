@@ -37,6 +37,9 @@ public class Consumer extends BaseEntity {
     private String nickname;
 
     private String profile;
+    
+    @Column(nullable = false)
+    private Boolean nicknameSet = false; 
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(20)")
