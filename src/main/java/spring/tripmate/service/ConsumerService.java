@@ -2,7 +2,12 @@ package spring.tripmate.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +19,9 @@ import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
 import spring.tripmate.security.JwtProvider;
+
+import org.springframework.web.multipart.MultipartFile;
+
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +102,54 @@ public class ConsumerService {
         consumer.setNickname(newNickname);
         consumer.setNicknameSet(true);
     }
+
+    @Transactional
+    public void updateConsumer(String emailFromToken, String nickname, String email, MultipartFile profileImage) {
+        Consumer consumer = findByEmail(emailFromToken);
+
+        if (nickname != null && !nickname.isBlank()) {
+            if (!nickname.equals(consumer.getNickname()) && existsByNickname(nickname)) {
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            }
+            consumer.setNickname(nickname);
+            consumer.setNicknameSet(true);
+        }
+
+        if (email != null && !email.isBlank()) {
+            if (!email.equals(consumer.getEmail()) && existsByEmail(email)) {
+                throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            }
+            consumer.setEmail(email);
+        }
+
+        // ⬇️ 이미지 처리 로직 추가
+        if (profileImage != null && !profileImage.isEmpty()) {
+            String profilePath = saveProfileImage(profileImage);
+            consumer.setProfile(profilePath);
+        }
+    }
+
+    private String saveProfileImage(MultipartFile image) {
+        try {
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+
+            String baseDir = System.getProperty("user.dir") + "/uploads/profile-images";
+            Path uploadDir = Paths.get(baseDir);
+
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir); // 폴더 자동 생성
+            }
+
+            Path filePath = uploadDir.resolve(filename);
+            image.transferTo(filePath.toFile());
+
+            return "/images/profile/" + filename;
+        } catch (IOException e) {
+            throw new RuntimeException("프로필 이미지 저장 실패", e);
+        }
+    }
+
+
+
 
 }
