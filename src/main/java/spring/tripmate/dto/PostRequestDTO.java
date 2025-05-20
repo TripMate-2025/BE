@@ -10,15 +10,18 @@ import java.util.List;
 public class PostRequestDTO {
     @Builder
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PostDTO{
+    public static class CreateDTO{
         @NotBlank
         private String title;
 
         private List<MultipartFile> images;
         @NotBlank
         private String content;
+        @NotNull
+        private Long planId;
     }
 
     @Builder

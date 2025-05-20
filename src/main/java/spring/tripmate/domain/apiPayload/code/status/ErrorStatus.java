@@ -17,11 +17,15 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
     _NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "요청한 리소스를 찾을 수 없습니다."),
     //TO DO : 개발하면서 필요한 에러 상수 추가하기
+    INVALID_AUTH_HEADER(HttpStatus.BAD_REQUEST, "AUTH4001", "잘못된 인증 헤더입니다."),
+
     GEMINI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "GEMINI5001", "Gemini API 호출 실패"),
     INVALID_GEMINI_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "GEMINI5002", "Gemini 응답 파싱 실패"),
 
     INVALID_GOOGLE_PLACE(HttpStatus.BAD_REQUEST, "GOOGLE4001", "해당되는 장소를 찾을 수 없습니다."),
     INVALID_GOOGLE_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "GOOGLE5001", "Google Place 응답 파싱 실패"),
+
+    CONSUMER_NOT_FOUND(HttpStatus.NOT_FOUND, "CONSUMER4001", "해당되는 유저가 없습니다."),
 
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PLAN4001", "해당되는 계획이 없습니다.");
 

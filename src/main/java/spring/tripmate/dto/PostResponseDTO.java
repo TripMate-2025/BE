@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,15 +13,11 @@ public class PostResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PostDTO{
+    public static class CreateDTO{
         @NotNull
         private Long postId;
-        @NotBlank
-        private String title;
 
-        private List<String> images;
-        @NotBlank
-        private String content;
+        private LocalDateTime createdAt;
     }
 
     @Builder
