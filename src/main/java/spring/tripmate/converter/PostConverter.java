@@ -4,6 +4,7 @@ import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.Post;
 import spring.tripmate.domain.PostImage;
 import spring.tripmate.domain.TravelPlan;
+import spring.tripmate.dto.PlanResponseDTO;
 import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
 
@@ -31,6 +32,19 @@ public class PostConverter {
         return PostResponseDTO.CreateDTO.builder()
                 .postId(post.getId())
                 .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static PostResponseDTO.DetailDTO toDetailDTO(Consumer writer, Post post, List<PostImage> images, PlanResponseDTO.PlanDTO plan){
+        return PostResponseDTO.DetailDTO.builder()
+                .postId(post.getId())
+                .writerId(writer.getId())
+                .nickname(writer.getNickname())
+                .profile(writer.getProfile())
+                .title(post.getTitle())
+                .images(images)
+                .content(post.getContent())
+                .plan(plan)
                 .build();
     }
 }

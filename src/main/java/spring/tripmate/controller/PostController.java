@@ -38,4 +38,11 @@ public class PostController {
         PostResponseDTO.SummaryDTO response = postService.getPostsByCountry(authHeader, country, page, size);
         return ApiResponse.onSuccess(response);
     }
+
+    @GetMapping("/{postId}")
+    public ApiResponse<PostResponseDTO.DetailDTO> getPostById(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                                              @PathVariable("postId") Long postId){
+        PostResponseDTO.DetailDTO response = postService.getPostById(authHeader, postId);
+        return ApiResponse.onSuccess(response);
+    }
 }

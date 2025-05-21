@@ -1,9 +1,13 @@
 package spring.tripmate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import spring.tripmate.converter.PostConverter;
+import spring.tripmate.converter.TravelPlanConverter;
 import spring.tripmate.dao.*;
 import spring.tripmate.domain.*;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
@@ -174,5 +178,39 @@ public class PostService {
         return PostResponseDTO.SummaryDTO.builder()
                 .posts(postDTOs)
                 .build();
+    }
+
+    public PostResponseDTO.DetailDTO getPostById(String authHeader, Long postId){
+        Long consumerId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtProvider.getEmailFromToken(token);
+            Consumer consumer = consumerDAO.findByEmail(email);
+            System.out.print("확인1: " + token + "email" + email + "consumer" + consumer.getId());
+            if (consumer != null) {
+                consumerId = consumer.getId();
+            }
+        }
+
+        Post post = postDAO.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+
+        List<PostImage> images = Optional.ofNullable(post.getPostImages())
+                .orElse(Collections.emptyList());
+
+        Consumer writer = post.getWriter();
+        if (writer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
+
+        TravelPlan plan = post.getPlan();
+        List<TravelPlace> places = plan.getPlaces();
+
+        PlanResponseDTO.PlanDTO planDTO = TravelPlanConverter.toPlanDTO(plan, places);
+        PostResponseDTO.DetailDTO detailDTO = PostConverter.toDetailDTO(writer, post, images, planDTO);
+
+        Boolean liked = postLikeDAO.existsByPostIdAndConsumerId(post.getId(), consumerId);
+        detailDTO.setLiked(liked);
+        return detailDTO;
     }
 }
