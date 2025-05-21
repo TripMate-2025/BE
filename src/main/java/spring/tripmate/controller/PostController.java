@@ -45,4 +45,10 @@ public class PostController {
         PostResponseDTO.DetailDTO response = postService.getPostById(authHeader, postId);
         return ApiResponse.onSuccess(response);
     }
+
+    @DeleteMapping("/{postId}")
+    public ApiResponse<Void> deletePost(@PathVariable("postId") Long postId){
+        postService.deletePost(postId);
+        return ApiResponse.onSuccess(null);
+    }
 }

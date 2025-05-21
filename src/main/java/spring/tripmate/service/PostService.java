@@ -14,6 +14,7 @@ import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
 import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
 import spring.tripmate.domain.apiPayload.exception.handler.PostHandler;
 import spring.tripmate.domain.apiPayload.exception.handler.UnauthorizedException;
+import spring.tripmate.dto.PlanResponseDTO;
 import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
@@ -212,5 +213,11 @@ public class PostService {
         Boolean liked = postLikeDAO.existsByPostIdAndConsumerId(post.getId(), consumerId);
         detailDTO.setLiked(liked);
         return detailDTO;
+    }
+
+    public void deletePost(Long postId){
+        Post post = postDAO.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+        postDAO.delete(post);
     }
 }
