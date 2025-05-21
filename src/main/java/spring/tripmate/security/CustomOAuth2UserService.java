@@ -59,8 +59,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     Consumer newUser = Consumer.builder()
                             .email(email)
                             .name(name)
-                            .nickname("google_" + System.currentTimeMillis())
-                            .password("SOCIAL") 
+                            .nickname("temp_google_" + System.currentTimeMillis())
+                            .password("SOCIAL")
+                            .nicknameSet(false)
                             .provider(ProviderType.valueOf(provider.toUpperCase()))
                             .build();
                     return consumerDAO.save(newUser);
