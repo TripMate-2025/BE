@@ -5,15 +5,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import spring.tripmate.domain.Consumer;
+import spring.tripmate.domain.apiPayload.ApiResponse;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
+import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
-import spring.tripmate.security.JwtUtil;
 import spring.tripmate.service.ConsumerService;
 
 import jakarta.validation.Valid;
@@ -97,4 +96,11 @@ public class ConsumerController {
     }
 
 
+    @GetMapping("/{consumerId}/posts")
+    public ApiResponse<PostResponseDTO.SummaryDTO> getPostsByWriter(@PathVariable("consumerId") Long writerId,
+                                                                    @RequestParam(name = "page", defaultValue = "0") int page,
+                                                                    @RequestParam(name = "size", defaultValue = "15") int size){
+        PostResponseDTO.SummaryDTO response = consumerService.getPostsByWriter(writerId, page, size);
+        return ApiResponse.onSuccess(response);
+    }
 }

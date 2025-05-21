@@ -2,17 +2,25 @@ package spring.tripmate.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import spring.tripmate.converter.PostConverter;
 import spring.tripmate.dao.ConsumerDAO;
+import spring.tripmate.dao.PostDAO;
 import spring.tripmate.domain.Consumer;
+import spring.tripmate.domain.Post;
 import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
+import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
 
 @Service
@@ -20,6 +28,7 @@ import spring.tripmate.security.JwtProvider;
 public class ConsumerService {
 
     private final ConsumerDAO consumerDAO;
+    private final PostDAO postDAO;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -93,6 +102,15 @@ public class ConsumerService {
         Consumer consumer = findByEmail(email);
         consumer.setNickname(newNickname);
         consumer.setNicknameSet(true);
+    }
+
+    public PostResponseDTO.SummaryDTO getPostsByWriter(Long writerId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Post> posts = postDAO.findByWriterIdOrderByUpdatedAtDesc(writerId, pageable);
+        List<Post> postsList = posts.getContent();
+
+        return PostConverter.toSummaryDTO(postsList);
     }
 
 }
