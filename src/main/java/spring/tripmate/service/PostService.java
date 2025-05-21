@@ -14,6 +14,8 @@ import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
 import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
 import spring.tripmate.domain.apiPayload.exception.handler.PostHandler;
 import spring.tripmate.domain.apiPayload.exception.handler.UnauthorizedException;
+import spring.tripmate.domain.mapping.PostLike;
+import spring.tripmate.domain.mapping.PostLikeId;
 import spring.tripmate.dto.PlanResponseDTO;
 import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
@@ -187,7 +189,6 @@ public class PostService {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtProvider.getEmailFromToken(token);
             Consumer consumer = consumerDAO.findByEmail(email);
-            System.out.print("확인1: " + token + "email" + email + "consumer" + consumer.getId());
             if (consumer != null) {
                 consumerId = consumer.getId();
             }
@@ -219,5 +220,49 @@ public class PostService {
         Post post = postDAO.findById(postId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
         postDAO.delete(post);
+    }
+
+    public void likePost(String authHeader, Long postId){
+        //토큰 추출 및 로그인 한 사용자 찾기
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorStatus.INVALID_AUTH_HEADER);
+        }
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtProvider.getEmailFromToken(token);
+        Consumer consumer = consumerDAO.findByEmail(email);
+        if (consumer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
+
+        Post post = postDAO.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+
+        PostLike postLike = PostLike.builder()
+                .id(new PostLikeId(consumer.getId(), postId))
+                .consumer(consumer)
+                .post(post)
+                .build();
+
+        postLikeDAO.save(postLike);
+    }
+
+    public void unlikePost(String authHeader, Long postId){
+        //토큰 추출 및 로그인 한 사용자 찾기
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorStatus.INVALID_AUTH_HEADER);
+        }
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtProvider.getEmailFromToken(token);
+        Consumer consumer = consumerDAO.findByEmail(email);
+        if (consumer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
+
+        Post post = postDAO.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+
+        PostLike postLike = postLikeDAO.findById(new PostLikeId(consumer.getId(), post.getId()))
+                .orElseThrow();
+        postLikeDAO.delete(postLike);
     }
 }

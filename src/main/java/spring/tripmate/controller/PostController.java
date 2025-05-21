@@ -51,4 +51,18 @@ public class PostController {
         postService.deletePost(postId);
         return ApiResponse.onSuccess(null);
     }
+
+    @PostMapping("/{postId}/like")
+    public ApiResponse<Void> likePost(@RequestHeader("Authorization") String authHeader,
+                                      @PathVariable("postId") Long postId){
+        postService.likePost(authHeader, postId);
+        return ApiResponse.onSuccess(null);
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ApiResponse<Void> unlikePost(@RequestHeader("Authorization") String authHeader,
+                                        @PathVariable("postId") Long postId){
+        postService.unlikePost(authHeader, postId);
+        return ApiResponse.onSuccess(null);
+    }
 }
