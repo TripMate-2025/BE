@@ -34,6 +34,8 @@ public class SecurityConfig {
                     "/oauth2/**",
                     "/consumers/**",
                     "/plans/**",
+                    "/posts/**",
+                    "/uploads/**",
                     "/images/profile/**"
                 ).permitAll()
                 .anyRequest().authenticated()

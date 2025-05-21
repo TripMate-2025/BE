@@ -3,7 +3,9 @@ package spring.tripmate.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import spring.tripmate.domain.PostImage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,15 +14,11 @@ public class PostResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PostDTO{
+    public static class CreateDTO{
         @NotNull
         private Long postId;
-        @NotBlank
-        private String title;
 
-        private List<String> images;
-        @NotBlank
-        private String content;
+        private LocalDateTime createdAt;
     }
 
     @Builder
@@ -43,6 +41,8 @@ public class PostResponseDTO {
         public static class SummaryPostDTO{
             @NotNull
             private Long postId;
+            @NotNull
+            private Long writerId;
             @NotBlank
             private String nickname;
 
@@ -53,16 +53,21 @@ public class PostResponseDTO {
             private List<String> images;
             @NotBlank
             private String content;
+
+            private Boolean liked;
         }
     }
 
     @Builder
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DetailDTO{
         @NotNull
         private Long postId;
+        @NotNull
+        private Long writerId;
         @NotBlank
         private String nickname;
 
@@ -70,10 +75,12 @@ public class PostResponseDTO {
         @NotBlank
         private String title;
 
-        private List<String> images;
+        private List<PostImage> images;
         @NotBlank
         private String content;
+
+        private Boolean liked;
         @NotNull
-        private List<PlanResponseDTO.PlanDTO> plan;
+        private PlanResponseDTO.PlanDTO plan;
     }
 }

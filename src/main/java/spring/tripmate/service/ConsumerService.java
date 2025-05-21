@@ -2,6 +2,7 @@ package spring.tripmate.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,15 +10,22 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import spring.tripmate.converter.PostConverter;
 import spring.tripmate.dao.ConsumerDAO;
+import spring.tripmate.dao.PostDAO;
 import spring.tripmate.domain.Consumer;
+import spring.tripmate.domain.Post;
 import spring.tripmate.domain.enums.ProviderType;
 import spring.tripmate.dto.ConsumerRequestDTO;
 import spring.tripmate.dto.ConsumerResponseDTO;
+import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ConsumerService {
 
     private final ConsumerDAO consumerDAO;
+    private final PostDAO postDAO;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -102,7 +111,7 @@ public class ConsumerService {
         consumer.setNickname(newNickname);
         consumer.setNicknameSet(true);
     }
-
+  
     @Transactional
     public void updateConsumer(String emailFromToken, String nickname, String email, MultipartFile profileImage) {
         Consumer consumer = findByEmail(emailFromToken);
@@ -148,8 +157,13 @@ public class ConsumerService {
             throw new RuntimeException("프로필 이미지 저장 실패", e);
         }
     }
+  
+    public PostResponseDTO.SummaryDTO getPostsByWriter(Long writerId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
 
+        Page<Post> posts = postDAO.findByWriterIdOrderByUpdatedAtDesc(writerId, pageable);
+        List<Post> postsList = posts.getContent();
 
-
-
+        return PostConverter.toSummaryDTO(postsList);
+    }
 }
