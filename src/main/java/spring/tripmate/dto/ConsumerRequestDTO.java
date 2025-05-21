@@ -35,9 +35,8 @@ public class ConsumerRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateDTO {
-        private String username;
+        private String nickname;
         @Email
         private String email;
-        private String password;
     }
 }

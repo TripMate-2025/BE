@@ -28,14 +28,15 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/", 
+                    "/",
                     "/login",             // ✅ 충돌 방지
                     "/oauth-success",
                     "/oauth2/**",
                     "/consumers/**",
                     "/plans/**",
                     "/posts/**",
-                    "/uploads/**"
+                    "/uploads/**",
+                    "/images/profile/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

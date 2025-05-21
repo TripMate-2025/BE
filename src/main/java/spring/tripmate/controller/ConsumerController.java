@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
 import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.apiPayload.ApiResponse;
 import spring.tripmate.dto.ConsumerRequestDTO;
@@ -73,10 +75,30 @@ public class ConsumerController {
                 .email(consumer.getEmail())
                 .token(token)
                 .nicknameSet(consumer.getNicknameSet())
+                .profile(consumer.getProfile())
                 .build();
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateMe(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestPart("nickname") String nickname,
+            @RequestPart("email") String email,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
+        String token = authHeader.replace("Bearer ", "");
+        String emailFromToken = jwtProvider.getEmailFromToken(token);
+
+        try {
+            consumerService.updateConsumer(emailFromToken, nickname, email, profileImage);
+            return ResponseEntity.ok(Map.of("message", "사용자 정보가 성공적으로 수정되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
     @PatchMapping("/nickname")
     public ResponseEntity<?> updateNickname(
