@@ -22,4 +22,11 @@ public class PostController {
         PostResponseDTO.CreateDTO response = postService.createPost(authHeader, request);
         return ApiResponse.onSuccess(response);
     }
+
+    @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<PostResponseDTO.UpdateDTO> updatePost(@PathVariable("postId") Long postId,
+                                                             @Valid @ModelAttribute PostRequestDTO.UpdateDTO request){
+        PostResponseDTO.UpdateDTO response = postService.updatePost(postId, request);
+        return ApiResponse.onSuccess(response);
+    }
 }

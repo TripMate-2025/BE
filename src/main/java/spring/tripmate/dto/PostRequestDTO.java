@@ -26,20 +26,16 @@ public class PostRequestDTO {
 
     @Builder
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateDTO{
         private String title;
-        private List<UpdateImageDTO> images;
         private String content;
+        private Long planId;
 
-        @Getter
-        @Setter
-        public static class UpdateImageDTO {
-            @NotNull
-            private Long postImageId;
-            @NotNull
-            private MultipartFile newImage;
-        }
+        private List<Long> deleteImageIds;
+
+        private List<MultipartFile> newImages;
     }
 }

@@ -8,11 +8,14 @@ import spring.tripmate.dao.*;
 import spring.tripmate.domain.*;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
 import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
+import spring.tripmate.domain.apiPayload.exception.handler.PostHandler;
 import spring.tripmate.domain.apiPayload.exception.handler.UnauthorizedException;
 import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
 import spring.tripmate.util.FileUtil;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +60,58 @@ public class PostService {
         }
 
         return PostConverter.toCreatePostDTO(post);
+    }
+
+    public PostResponseDTO.UpdateDTO updatePost(Long postId, PostRequestDTO.UpdateDTO request){
+        Post post = postDAO.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+
+        Map<String, Object> updatedFields = new HashMap<>();
+
+        //title
+        if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+            post.setTitle(request.getTitle());
+            updatedFields.put("title", request.getTitle());
+        }
+
+        //content
+        if (request.getContent() != null && !request.getContent().isEmpty()) {
+            post.setContent(request.getContent());
+            updatedFields.put("content", request.getContent());
+        }
+
+        //planId
+        if (request.getPlanId() != null) {
+            TravelPlan plan = planDAO.findById(request.getPlanId())
+                    .orElseThrow(() -> new PlanHandler(ErrorStatus.PLAN_NOT_FOUND));
+            post.setPlan(plan);
+            updatedFields.put("planId", request.getPlanId());
+        }
+
+        //deleteImage
+        if (request.getDeleteImageIds() != null) {
+            for (Long imageId : request.getDeleteImageIds()) {
+                PostImage image = postImageDAO.findById(imageId)
+                        .orElseThrow(() -> new PostHandler(ErrorStatus.POST_IMAGE_NOT_FOUND));
+                postImageDAO.delete(image);
+                fileUtil.deleteFile(image.getStoredPath());
+            }
+        }
+
+        //newImage
+        if (request.getNewImages() != null) {
+            for (MultipartFile file : request.getNewImages()) {
+                String path = fileUtil.saveFile(file, "post");
+                PostImage newImage = new PostImage(null, file.getOriginalFilename(), path, post);
+                postImageDAO.save(newImage);
+            }
+        }
+
+        // 최종 저장
+        postDAO.save(post);
+
+        return PostResponseDTO.UpdateDTO.builder()
+                .updatedFields(updatedFields)
+                .build();
     }
 }
