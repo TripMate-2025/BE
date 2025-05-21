@@ -40,6 +40,8 @@ public class PostResponseDTO {
         public static class SummaryPostDTO{
             @NotNull
             private Long postId;
+            @NotNull
+            private Long writerId;
             @NotBlank
             private String nickname;
 
@@ -50,6 +52,8 @@ public class PostResponseDTO {
             private List<String> images;
             @NotBlank
             private String content;
+
+            private Boolean liked;
         }
     }
 

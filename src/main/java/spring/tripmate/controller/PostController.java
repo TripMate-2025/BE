@@ -29,4 +29,13 @@ public class PostController {
         PostResponseDTO.UpdateDTO response = postService.updatePost(postId, request);
         return ApiResponse.onSuccess(response);
     }
+
+    @GetMapping
+    public ApiResponse<PostResponseDTO.SummaryDTO> getPostsByCountry(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                                                     @RequestParam(value = "country", required = false) String country,
+                                                                     @RequestParam(name = "page", defaultValue = "0") int page,
+                                                                     @RequestParam(name = "size", defaultValue = "15") int size){
+        PostResponseDTO.SummaryDTO response = postService.getPostsByCountry(authHeader, country, page, size);
+        return ApiResponse.onSuccess(response);
+    }
 }

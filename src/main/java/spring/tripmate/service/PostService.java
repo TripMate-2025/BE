@@ -16,6 +16,7 @@ import spring.tripmate.security.JwtProvider;
 import spring.tripmate.util.FileUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class PostService {
     private final ConsumerDAO consumerDAO;
     private final PostDAO postDAO;
     private final PostImageDAO postImageDAO;
+    private final PostLikeDAO postLikeDAO;
     private final TravelPlanDAO planDAO;
 
     public PostResponseDTO.CreateDTO createPost(String authHeader, PostRequestDTO.CreateDTO request) {
@@ -112,6 +114,65 @@ public class PostService {
 
         return PostResponseDTO.UpdateDTO.builder()
                 .updatedFields(updatedFields)
+                .build();
+    }
+
+    public PostResponseDTO.SummaryDTO getPostsByCountry(String authHeader, String country, int page, int size){
+        Long consumerId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtProvider.getEmailFromToken(token);
+            Consumer writer = consumerDAO.findByEmail(email);
+            if (writer != null) {
+                consumerId = writer.getId();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Post> posts;
+
+        if (country == null || country.isBlank()) {
+            // 전체 게시글 중 최신순으로
+            posts = postDAO.findAllByOrderByUpdatedAtDesc(pageable).getContent();
+        }else {
+            Page<TravelPlan> plans = planDAO.findByCountry(country, pageable);
+            List<TravelPlan> plansList = plans.getContent();
+            posts = plansList.stream()
+                    .flatMap(plan -> plan.getPosts().stream()) // 각 plan의 posts를 평탄화
+                    .toList();
+        }
+
+        final Long finalConsumerId = consumerId;
+        List<PostResponseDTO.SummaryDTO.SummaryPostDTO> postDTOs = posts.stream()
+                .map(post -> {
+                    Boolean liked = false;
+                    if (finalConsumerId != null && postLikeDAO.existsByPostIdAndConsumerId(post.getId(), finalConsumerId)){
+                        liked = true;
+                    }
+                    PostResponseDTO.SummaryDTO.SummaryPostDTO dto = new PostResponseDTO.SummaryDTO.SummaryPostDTO();
+                    dto.setPostId(post.getId());
+                    dto.setWriterId(post.getWriter().getId());
+                    dto.setNickname(post.getWriter().getNickname());
+                    dto.setProfile(post.getWriter().getProfile());
+                    dto.setTitle(post.getTitle());
+                    dto.setContent(post.getContent());
+                    dto.setLiked(liked);
+
+                    List<String> images = Optional.ofNullable(post.getPostImages())
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .map(PostImage::getStoredPath)
+                            .collect(Collectors.toList());
+
+                    dto.setImages(images);
+
+                    return dto;
+                })
+                .toList();
+
+        return PostResponseDTO.SummaryDTO.builder()
+                .posts(postDTOs)
                 .build();
     }
 }
