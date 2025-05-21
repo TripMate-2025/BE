@@ -19,10 +19,7 @@ import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.TravelPlace;
 import spring.tripmate.domain.TravelPlan;
 import spring.tripmate.domain.apiPayload.code.status.ErrorStatus;
-import spring.tripmate.domain.apiPayload.exception.handler.GeminiCallFailedException;
-import spring.tripmate.domain.apiPayload.exception.handler.InvalidGeminiResponseException;
-import spring.tripmate.domain.apiPayload.exception.handler.InvalidGooglePlaceException;
-import spring.tripmate.domain.apiPayload.exception.handler.PlanHandler;
+import spring.tripmate.domain.apiPayload.exception.handler.*;
 import spring.tripmate.domain.enums.StyleType;
 import spring.tripmate.dto.GooglePlaceResponseDTO;
 import spring.tripmate.dto.PlanRequestDTO;
@@ -66,7 +63,7 @@ public class TravelPlanService {
 
             //좌표 및 주소 보정
             plan.getPlaces().forEach(placeDto -> {
-                GooglePlaceResponseDTO response = googlePlaceClient.getLocation(placeDto.getName());
+                GooglePlaceResponseDTO response = googlePlaceClient.getLocation(plan.getCountry() + plan.getCity() + placeDto.getName());
 
                 //검색 결과가 없는 경우->도로명 주소로 검색
                 if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
@@ -102,9 +99,16 @@ public class TravelPlanService {
 
     //room에서 호출
     //@RequestHeader("Authorization") String authHeader, String token = authHeader.replace("Bearer ", "");로 token 추출해서 전달받기
-    public PlanResponseDTO.PlanDTO savePlan(UUID planId, String token) {
-
+    public PlanResponseDTO.PlanDTO savePlan(UUID planId, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorStatus.INVALID_AUTH_HEADER);
+        }
+        String token = authHeader.replace("Bearer ", "");
         String email = jwtProvider.getEmailFromToken(token);
+        Consumer consumer = consumerDAO.findByEmail(email);
+        if (consumer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
 
         String key = "plan:" + planId;
         String json = redisUtil.getData(key);
@@ -115,8 +119,6 @@ public class TravelPlanService {
         } catch (JsonProcessingException e) {
             throw new InvalidGeminiResponseException(ErrorStatus.INVALID_GEMINI_RESPONSE);
         }
-
-        Consumer consumer = consumerDAO.findByEmail(email);
 
         TravelPlan plan = TravelPlanConverter.toPlan(consumer, createPlan);
         planDAO.save(plan);
