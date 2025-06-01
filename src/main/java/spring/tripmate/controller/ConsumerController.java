@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -28,61 +27,71 @@ public class ConsumerController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<ConsumerResponseDTO.RegisterDTO> register(
+    public ApiResponse<ConsumerResponseDTO.RegisterDTO> register(
             @RequestBody @Valid ConsumerRequestDTO.RegisterDTO request
     ) {
         ConsumerResponseDTO.RegisterDTO response = consumerService.register(request);
-        return ResponseEntity.ok(response);
+        return ApiResponse.onSuccess(response);
     }
-    
+
     @PostMapping("/login")
-    public ResponseEntity<ConsumerResponseDTO.LoginDTO> login(
+    public ApiResponse<ConsumerResponseDTO.LoginDTO> login(
             @RequestBody @Valid ConsumerRequestDTO.LoginDTO request
     ) {
         ConsumerResponseDTO.LoginDTO response = consumerService.login(request);
-        return ResponseEntity.ok(response);
+        return ApiResponse.onSuccess(response);
     }
 
-
     @GetMapping("/check-nickname")
-    public ResponseEntity<?> checkNickname(@RequestParam("nickname") String nickname) {
+    public ApiResponse<Map<String, Boolean>> checkNickname(@RequestParam("nickname") String nickname) {
         boolean exists = consumerService.existsByNickname(nickname);
-        return ResponseEntity.ok(Map.of("exists", exists));
+        return ApiResponse.onSuccess(Map.of("exists", exists));
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity<?> checkEmail(@RequestParam("email") String email) {
+    public ApiResponse<Map<String, Boolean>> checkEmail(@RequestParam("email") String email) {
         boolean exists = consumerService.existsByEmail(email);
-        return ResponseEntity.ok(Map.of("exists", exists));
+        return ApiResponse.onSuccess(Map.of("exists", exists));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ConsumerResponseDTO.LoginDTO> getCurrentUser(
-            @RequestHeader("Authorization") String authHeader
+    public ApiResponse<ConsumerResponseDTO.LoginDTO> getCurrentUser(
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
-        // 1. 토큰 파싱 (Bearer 제거)
-        String token = authHeader.replace("Bearer ", "");
-        String email = jwtProvider.getEmailFromToken(token);
 
-        // 2. 이메일로 사용자 조회
-        Consumer consumer = consumerService.findByEmail(email);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ApiResponse.onFailure("401", "유효하지 않은 인증 헤더입니다.", null);
+        }
 
-        // 3. DTO로 변환
-        ConsumerResponseDTO.LoginDTO response = ConsumerResponseDTO.LoginDTO.builder()
-                .id(consumer.getId())
-                .nickname(consumer.getNickname())
-                .name(consumer.getName())
-                .email(consumer.getEmail())
-                .token(token)
-                .nicknameSet(consumer.getNicknameSet())
-                .profile(consumer.getProfile())
-                .build();
+        String token = authHeader.replace("Bearer ", "").trim();
+        if (token.isEmpty()) {
+            return ApiResponse.onFailure("401", "토큰이 비어있습니다.", null);
+        }
 
-        return ResponseEntity.ok(response);
+        try {
+            String email = jwtProvider.getEmailFromToken(token);
+            Consumer consumer = consumerService.findByEmail(email);
+
+            ConsumerResponseDTO.LoginDTO response = ConsumerResponseDTO.LoginDTO.builder()
+                    .id(consumer.getId())
+                    .nickname(consumer.getNickname())
+                    .name(consumer.getName())
+                    .email(consumer.getEmail())
+                    .token(token)
+                    .nicknameSet(consumer.getNicknameSet())
+                    .profile(consumer.getProfile())
+                    .build();
+
+            return ApiResponse.onSuccess(response);
+        } catch (Exception e) {
+
+            return ApiResponse.onFailure("401", "유효하지 않은 토큰입니다.", null);
+        }
     }
 
+
     @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateMe(
+    public ApiResponse<Map<String, String>> updateMe(
             @RequestHeader("Authorization") String authHeader,
             @RequestPart("nickname") String nickname,
             @RequestPart("email") String email,
@@ -93,15 +102,14 @@ public class ConsumerController {
 
         try {
             consumerService.updateConsumer(emailFromToken, nickname, email, profileImage);
-            return ResponseEntity.ok(Map.of("message", "사용자 정보가 성공적으로 수정되었습니다."));
+            return ApiResponse.onSuccess(Map.of("message", "사용자 정보가 성공적으로 수정되었습니다."));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ApiResponse.onFailure("400", e.getMessage(), null);
         }
     }
 
-
     @PatchMapping("/nickname")
-    public ResponseEntity<?> updateNickname(
+    public ApiResponse<Map<String, String>> updateNickname(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, String> request
     ) {
@@ -111,17 +119,16 @@ public class ConsumerController {
 
         try {
             consumerService.updateNickname(email, newNickname);
-            return ResponseEntity.ok(Map.of("message", "닉네임이 성공적으로 변경되었습니다."));
+            return ApiResponse.onSuccess(Map.of("message", "닉네임이 성공적으로 변경되었습니다."));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ApiResponse.onFailure("400", e.getMessage(), null);
         }
     }
-
 
     @GetMapping("/{consumerId}/posts")
     public ApiResponse<PostResponseDTO.SummaryDTO> getPostsByWriter(@PathVariable("consumerId") Long writerId,
                                                                     @RequestParam(name = "page", defaultValue = "0") int page,
-                                                                    @RequestParam(name = "size", defaultValue = "15") int size){
+                                                                    @RequestParam(name = "size", defaultValue = "15") int size) {
         PostResponseDTO.SummaryDTO response = consumerService.getPostsByWriter(writerId, page, size);
         return ApiResponse.onSuccess(response);
     }
