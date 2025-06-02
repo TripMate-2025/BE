@@ -7,7 +7,7 @@ import spring.tripmate.domain.Post;
 
 public interface PostDAO extends JpaRepository<Post, Long> {
     Page<Post> findAllByOrderByUpdatedAtDesc(Pageable pageable);
-
     Page<Post> findByPlanId(Long planId, Pageable pageable);
     Page<Post> findByWriterIdOrderByUpdatedAtDesc(Long writerId, Pageable pageable);
+    Page<Post> findByWriterId(Long writerId, Pageable pageable);
 }

@@ -265,4 +265,94 @@ public class PostService {
                 .orElseThrow();
         postLikeDAO.delete(postLike);
     }
+
+    public PostResponseDTO.SummaryDTO getLikedPosts(String authHeader, int page, int size) {
+        // 1️⃣ 토큰 검증 및 Consumer 찾기
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorStatus.INVALID_AUTH_HEADER);
+        }
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtProvider.getEmailFromToken(token);
+        Consumer consumer = consumerDAO.findByEmail(email);
+        if (consumer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
+
+        // 2️⃣ 좋아요한 PostLike 목록 조회 (페이징)
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostLike> postLikesPage = postLikeDAO.findByConsumerId(consumer.getId(), pageable);
+
+        // 3️⃣ PostLike -> Post 로 변환
+        List<PostResponseDTO.SummaryDTO.SummaryPostDTO> likedPosts = postLikesPage.getContent()
+                .stream()
+                .map(postLike -> {
+                    Post post = postLike.getPost();
+                    PostResponseDTO.SummaryDTO.SummaryPostDTO dto = new PostResponseDTO.SummaryDTO.SummaryPostDTO();
+                    dto.setPostId(post.getId());
+                    dto.setWriterId(post.getWriter().getId());
+                    dto.setNickname(post.getWriter().getNickname());
+                    dto.setProfile(post.getWriter().getProfile());
+                    dto.setTitle(post.getTitle());
+                    dto.setContent(post.getContent());
+                    dto.setLiked(true); // 좋아요한 게시글이니까 true
+
+                    List<String> images = Optional.ofNullable(post.getPostImages())
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .map(PostImage::getStoredPath)
+                            .collect(Collectors.toList());
+                    dto.setImages(images);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return PostResponseDTO.SummaryDTO.builder()
+                .posts(likedPosts)
+                .build();
+    }
+
+    public PostResponseDTO.SummaryDTO getMyPosts(String authHeader, int page, int size) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorStatus.INVALID_AUTH_HEADER);
+        }
+
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtProvider.getEmailFromToken(token);
+        Consumer consumer = consumerDAO.findByEmail(email);
+        if (consumer == null) {
+            throw new UnauthorizedException(ErrorStatus.CONSUMER_NOT_FOUND);
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> myPostsPage = postDAO.findByWriterId(consumer.getId(), pageable);
+
+        List<PostResponseDTO.SummaryDTO.SummaryPostDTO> postDTOs = myPostsPage.getContent()
+                .stream()
+                .map(post -> {
+                    PostResponseDTO.SummaryDTO.SummaryPostDTO dto = new PostResponseDTO.SummaryDTO.SummaryPostDTO();
+                    dto.setPostId(post.getId());
+                    dto.setWriterId(post.getWriter().getId());
+                    dto.setNickname(post.getWriter().getNickname());
+                    dto.setProfile(post.getWriter().getProfile());
+                    dto.setTitle(post.getTitle());
+                    dto.setContent(post.getContent());
+                    dto.setLiked(false); // 기본은 false, 필요한 경우 따로 구현
+
+                    List<String> images = Optional.ofNullable(post.getPostImages())
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .map(PostImage::getStoredPath)
+                            .collect(Collectors.toList());
+                    dto.setImages(images);
+
+                    return dto;
+                })
+                .toList();
+
+        return PostResponseDTO.SummaryDTO.builder()
+                .posts(postDTOs)
+                .build();
+    }
+
 }

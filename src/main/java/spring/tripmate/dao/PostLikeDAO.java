@@ -1,5 +1,7 @@
 package spring.tripmate.dao;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import spring.tripmate.domain.mapping.PostLike;
 import spring.tripmate.domain.mapping.PostLikeId;
@@ -14,4 +16,5 @@ public interface PostLikeDAO extends JpaRepository<PostLike, PostLikeId> {
     Integer countByPostId(Long postId);
 
     void deleteById_ConsumerIdAndId_PostId(Long consumerId, Long postId);
+    Page<PostLike> findByConsumerId(Long consumerId, Pageable pageable);
 }
