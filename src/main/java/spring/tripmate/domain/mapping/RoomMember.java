@@ -10,7 +10,7 @@ import spring.tripmate.domain.common.BaseEntity;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Table(name = "room_members")
 public class RoomMember extends BaseEntity {
