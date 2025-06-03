@@ -30,6 +30,25 @@ public class PostController {
         return ApiResponse.onSuccess(response);
     }
 
+    @GetMapping("/likes")
+    public ApiResponse<PostResponseDTO.SummaryDTO> getLikedPosts(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "15") int size) {
+        PostResponseDTO.SummaryDTO response = postService.getLikedPosts(authHeader, page, size);
+        return ApiResponse.onSuccess(response);
+    }
+
+    @GetMapping("/mine")
+    public ApiResponse<PostResponseDTO.SummaryDTO> getMyPosts(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "15") int size) {
+
+        PostResponseDTO.SummaryDTO response = postService.getMyPosts(authHeader, page, size);
+        return ApiResponse.onSuccess(response);
+    }
+
     @GetMapping
     public ApiResponse<PostResponseDTO.SummaryDTO> getPostsByCountry(@RequestHeader(value = "Authorization", required = false) String authHeader,
                                                                      @RequestParam(value = "country", required = false) String country,
@@ -65,4 +84,5 @@ public class PostController {
         postService.unlikePost(authHeader, postId);
         return ApiResponse.onSuccess(null);
     }
+
 }
