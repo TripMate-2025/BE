@@ -7,13 +7,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import spring.tripmate.security.CustomOAuth2UserService;
+import spring.tripmate.security.JwtAuthenticationFilter;
 import spring.tripmate.security.OAuth2LoginSuccessHandler;
+
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
@@ -25,32 +33,52 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/",
-                    "/login",             // ✅ 충돌 방지
-                    "/oauth-success",
-                    "/oauth2/**",
-                    "/consumers/**",
-                    "/plans/**",
-                    "/posts/**",
-                    "/uploads/**",
-                        "/rooms/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("http://localhost:3000/login") // ✅ 프론트 로그인 페이지 지정
-                .permitAll()
-            )
-            .oauth2Login(oauth -> oauth
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(customOAuth2UserService)
+                .cors() // ✅ CORS 설정 활성화
+                .and()
+                .csrf().disable()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/oauth-success",
+                                "/oauth2/**",
+                                "/consumers/**",
+                                "/plans/**",
+                                "/posts/**",
+                                "/uploads/**",
+                                "/rooms/**",         // 방 관련 API 허용
+                                "/plans/save"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .successHandler(oAuth2LoginSuccessHandler)
-            );
+                .formLogin(form -> form
+                        .loginPage("http://localhost:3000/login")
+                        .permitAll()
+                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
+                );
+
+        // ✅ JWT 필터 추가
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // ✅ CORS 설정 추가
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트 주소
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // Authorization 헤더 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
