@@ -47,6 +47,7 @@ public class TravelPlace {
     @JoinColumn(name = "plan_id", nullable = false)
     private TravelPlan plan;
 
+    @Builder.Default
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlaceComment> comments = new ArrayList<>();
 }

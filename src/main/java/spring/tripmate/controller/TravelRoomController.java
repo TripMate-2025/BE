@@ -20,18 +20,19 @@ public class TravelRoomController {
     private final TravelRoomService roomService;
     private final TravelPlanService planService;
 
-    @PostMapping("")
+    @PostMapping
     public ApiResponse<TravelRoomResponseDTO.RoomDTO> createRoom(
-            @RequestHeader(value = "Authorization", required = false) String authHeader,
-            @RequestParam("planId") Long planId
+            @RequestParam("planId") UUID planId,
+            @RequestHeader("Authorization") String authHeader
     ) {
         System.out.println("[DEBUG] Long planId : " + planId);
         System.out.println("[DEBUG] 🔐 Received authHeader: " + authHeader);
 
-        TravelRoomResponseDTO.RoomDTO roomDTO = roomService.createRoom(planId, authHeader);
-        return ApiResponse.onSuccess(roomDTO);
-    }
+        PlanResponseDTO.PlanDTO plan = planService.savePlan(planId, authHeader);
+        TravelRoomResponseDTO.RoomDTO response = roomService.createRoom(plan.getPlanId(), authHeader);
 
+        return ApiResponse.onSuccess(response);
+    }
 
     @GetMapping("/{roomId}")
     public ApiResponse<TravelRoomResponseDTO.RoomDTO> getRoom(
