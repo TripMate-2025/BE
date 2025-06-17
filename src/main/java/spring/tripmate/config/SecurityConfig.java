@@ -46,8 +46,7 @@ public class SecurityConfig {
                                 "/plans/**",
                                 "/posts/**",
                                 "/uploads/**",
-                                "/rooms/**",         // 방 관련 API 허용
-                                "/plans/save"
+                                "/rooms/**"         // 방 관련 API 허용
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

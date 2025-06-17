@@ -9,7 +9,6 @@ import spring.tripmate.dto.PlanResponseDTO;
 import spring.tripmate.service.TravelPlanService;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,17 +42,4 @@ public class TravelPlanController {
         List<PlanResponseDTO.PlanDTO> response = travelPlanService.getPlansByTheme(theme, page, size);
         return ApiResponse.onSuccess(response);
     }
-
-
-    //여기수정, 선영
-    @PostMapping("/save")
-    public ApiResponse<PlanResponseDTO.PlanDTO> savePlanFromRedis(
-            @RequestParam("planId") UUID planId,
-            @RequestHeader("Authorization") String authHeader) {
-
-        PlanResponseDTO.PlanDTO response = travelPlanService.savePlan(planId, authHeader);
-        return ApiResponse.onSuccess(response);
-    }
-
-
 }

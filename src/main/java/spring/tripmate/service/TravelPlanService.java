@@ -128,6 +128,9 @@ public class TravelPlanService {
                 .map(placeDAO::save)
                 .toList();
 
+        //places 설정
+        plan.setPlaces(places);
+
         return TravelPlanConverter.toPlanDTO(plan, places);
     }
 
