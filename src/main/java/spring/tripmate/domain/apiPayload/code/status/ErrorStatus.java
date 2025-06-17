@@ -28,9 +28,13 @@ public enum ErrorStatus implements BaseErrorCode {
     CONSUMER_NOT_FOUND(HttpStatus.NOT_FOUND, "CONSUMER4001", "해당되는 유저가 없습니다."),
 
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PLAN4001", "해당되는 계획이 없습니다."),
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM4001", "해당되는 룸이 없습니다."),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "해당되는 게시물이 없습니다."),
-    POST_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4002", "해당되는 이미지가 없습니다.");
+    POST_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4002", "해당되는 이미지가 없습니다."),
+
+    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당되는 장소를 찾을 수 없습니다."),
+    ALREADY_ROOM_MEMBER(HttpStatus.CONFLICT, "MEMBER500","이미 방에 참여 중인 유저입니다.");
 
     //테스트 상수
     //TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트");
