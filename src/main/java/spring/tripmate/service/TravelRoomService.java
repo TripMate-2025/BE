@@ -243,14 +243,21 @@ public class TravelRoomService {
 
     @Transactional
     public ConsumerResponseDTO.RoomMembersDTO addMember(Long roomId, String authHeader) {
+        System.out.println("[DEBUG] addMember 시작 - roomId: " + roomId);
+
         Consumer consumer = getConsumerFromHeader(authHeader);
+        System.out.println("[DEBUG] 인증된 사용자: " + consumer.getEmail());
 
         TravelRoom room = roomDAO.findById(roomId)
-                .orElseThrow(() -> new RoomHandler(ErrorStatus.PLAN_NOT_FOUND));
+                .orElseThrow(() -> {
+                    System.out.println("[ERROR] 해당 roomId를 찾을 수 없음: " + roomId);
+                    return new RoomHandler(ErrorStatus.PLAN_NOT_FOUND);
+                });
 
         // 이미 등록된 멤버인지 확인
         RoomMemberId memberId = new RoomMemberId(consumer.getId(), room.getId());
         if (memberDAO.findById(memberId).isPresent()) {
+            System.out.println("[ERROR] 이미 방에 참가된 사용자: " + consumer.getId());
             throw new RoomHandler(ErrorStatus.ALREADY_ROOM_MEMBER);
         }
 
@@ -259,7 +266,10 @@ public class TravelRoomService {
                 .member(consumer)
                 .room(room)
                 .build();
+
         memberDAO.save(member);
+
+        System.out.println("[DEBUG] 멤버 저장 완료: " + consumer.getEmail());
 
         List<ConsumerResponseDTO.RoomMembersDTO.MemberDTO> dtos = room.getMembers().stream()
                 .map(RoomMember::getMember)
@@ -275,6 +285,7 @@ public class TravelRoomService {
 
         return new ConsumerResponseDTO.RoomMembersDTO(dtos);
     }
+
 
     private Consumer getConsumerFromHeader(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
