@@ -9,7 +9,7 @@ import jakarta.annotation.PostConstruct;
 @Component
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
-    @Value("${spring.jwt.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
     @PostConstruct
