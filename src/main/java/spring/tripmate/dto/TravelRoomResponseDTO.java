@@ -49,6 +49,8 @@ public class TravelRoomResponseDTO {
             @Getter
             @Setter
             public static class PlaceDTO {
+                @NotNull
+                private Long placeId;
                 @NotBlank
                 private String name;
                 @NotNull

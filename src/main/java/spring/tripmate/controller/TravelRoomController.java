@@ -2,14 +2,15 @@ package spring.tripmate.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import spring.tripmate.domain.PlaceComment;
 import spring.tripmate.domain.apiPayload.ApiResponse;
-import spring.tripmate.dto.ConsumerResponseDTO;
-import spring.tripmate.dto.PlanResponseDTO;
-import spring.tripmate.dto.TravelRoomResponseDTO;
+import spring.tripmate.dto.*;
+import spring.tripmate.service.PlaceCommentService;
 import spring.tripmate.service.TravelPlanService;
 import spring.tripmate.service.TravelRoomService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -20,6 +21,7 @@ public class TravelRoomController {
 
     private final TravelRoomService roomService;
     private final TravelPlanService planService;
+    private final PlaceCommentService placeCommentService;
 
     @PostMapping
     public ApiResponse<TravelRoomResponseDTO.RoomDTO> createRoom(
@@ -33,6 +35,61 @@ public class TravelRoomController {
         TravelRoomResponseDTO.RoomDTO response = roomService.createRoom(plan.getPlanId(), authHeader);
 
         return ApiResponse.onSuccess(response);
+    }
+
+    @DeleteMapping("/{roomId}/places/{placeId}")
+    public ApiResponse<?> deletePlace(
+            @PathVariable Long roomId,
+            @PathVariable Long placeId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        System.out.println("[DEBUG] 컨트롤러 deletePlace 호출 - roomId: " + roomId + ", placeId: " + placeId);
+        roomService.deletePlace(roomId, placeId, authHeader);
+        return ApiResponse.onSuccess("삭제 완료");
+    }
+
+    @PatchMapping("/{roomId}/places/{placeId}")
+    public ApiResponse<PlanResponseDTO.UpdateDTO> updatePlace(
+            @PathVariable Long roomId,
+            @RequestBody PlanResponseDTO.UpdateDTO requestDto,
+            @RequestHeader("Authorization") String authHeader) {
+
+        Map<String, Object> updatedFields = roomService.updatePlaceInRoom(roomId, requestDto.getUpdatedFields(), authHeader);
+
+        PlanResponseDTO.UpdateDTO responseDto = new PlanResponseDTO.UpdateDTO(updatedFields);
+
+        return ApiResponse.onSuccess(responseDto);
+    }
+
+    @GetMapping("/{roomId}/places/{placeId}/comments")
+    public ApiResponse<List<PlaceCommentDTO>> getComments(
+            @PathVariable Long roomId,
+            @PathVariable Long placeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<PlaceComment> comments = placeCommentService.getCommentsByPlaceId(placeId, page, size).getContent();
+
+        List<PlaceCommentDTO> response = comments.stream()
+                .map(comment -> new PlaceCommentDTO(
+                        comment.getId(),
+                        comment.getContent(),
+                        comment.getWriter().getNickname(),
+                        comment.getWriter().getProfile(),
+                        comment.getCreatedAt()))
+                .toList();
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping("/{roomId}/places/{placeId}/comments")
+    public ApiResponse<String> addComment(
+            @PathVariable Long roomId,
+            @PathVariable Long placeId,
+            @RequestBody CommentCreateRequest request
+    ) {
+        placeCommentService.addComment(roomId, placeId, request.getConsumerId(), request.getContent());
+        return ApiResponse.onSuccess("댓글 등록 완료");
     }
 
     @GetMapping("/{roomId}")
@@ -60,5 +117,4 @@ public class TravelRoomController {
         List<TravelRoomResponseDTO.RoomDTO> rooms = roomService.getRoomsForConsumer(authHeader);
         return ApiResponse.onSuccess(rooms);
     }
-
 }

@@ -42,6 +42,8 @@ public class PlanResponseDTO {
         @Getter
         @Setter
         public static class CreatePlaceDTO {
+            @NotNull
+            private Long id;
             @NotBlank
             private String name;
             @NotNull

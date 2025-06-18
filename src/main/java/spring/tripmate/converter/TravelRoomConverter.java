@@ -41,6 +41,7 @@ public class TravelRoomConverter {
         List<TravelRoomResponseDTO.RoomDTO.PlanDTO.PlaceDTO> placeDTOs = plan.getPlaces().stream()
                 .map(p -> {
                     var dto = new TravelRoomResponseDTO.RoomDTO.PlanDTO.PlaceDTO();
+                    dto.setPlaceId(p.getId());
                     dto.setName(p.getName());
                     dto.setCategory(p.getCategory());
                     dto.setDescription(p.getDescription());
