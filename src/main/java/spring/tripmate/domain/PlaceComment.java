@@ -1,5 +1,6 @@
 package spring.tripmate.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import spring.tripmate.domain.common.BaseEntity;
@@ -21,9 +22,11 @@ public class PlaceComment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consumer_id", nullable = false)
+    @JsonIgnore
     private Consumer writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
+    @JsonIgnore
     private TravelPlace place;
 }

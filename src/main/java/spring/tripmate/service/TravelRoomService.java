@@ -307,4 +307,29 @@ public class TravelRoomService {
                 })
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<TravelRoomResponseDTO.SimpleRoomDTO> getSimpleRoomList(String authHeader) {
+        Consumer consumer = getConsumerFromHeader(authHeader);
+
+        List<RoomMember> memberships = memberDAO.findByMemberId(consumer.getId());
+        List<TravelRoom> rooms = memberships.stream()
+                .map(RoomMember::getRoom)
+                .toList();
+
+        return rooms.stream()
+                .map(room -> new TravelRoomResponseDTO.SimpleRoomDTO(
+                        room.getId(),
+                        room.getName(),
+                        room.getPlan().getTitle(),
+                        room.getPlan().getDestination(),
+                        room.getPlan().getStartDate(),
+                        room.getPlan().getEndDate()
+                ))
+                .toList();
+    }
+
+
+
+
 }

@@ -13,6 +13,16 @@ import java.util.Date;
 import java.util.List;
 
 public class TravelRoomResponseDTO {
+    @Data
+    @AllArgsConstructor
+    public static class SimpleRoomDTO {
+        private Long roomId;
+        private String name;
+        private String planTitle;
+        private String destination;
+        private Date startDate;
+        private Date endDate;
+    }
 
     @Builder
     @Getter
@@ -72,4 +82,5 @@ public class TravelRoomResponseDTO {
             }
         }
     }
+
 }
