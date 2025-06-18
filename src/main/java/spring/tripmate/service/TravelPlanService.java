@@ -50,7 +50,7 @@ public class TravelPlanService {
         String result;
 
         try {
-            result = geminiClient.getTravelPlan(prompt);
+            result = geminiClient.requestGemini(prompt);
         } catch (RestClientException e) {
             e.printStackTrace();
             throw new GeminiCallFailedException(ErrorStatus.GEMINI_API_CALL_FAILED);
@@ -132,12 +132,6 @@ public class TravelPlanService {
         plan.setPlaces(places);
 
         return TravelPlanConverter.toPlanDTO(plan, places);
-    }
-
-    //room 기능
-    public PlanResponseDTO.UpdateDTO updatePlan(Long planId, PlanRequestDTO.UpdateDTO request){
-
-        return null;
     }
 
     public PlanResponseDTO.PlanDTO getPlan(Long planId){

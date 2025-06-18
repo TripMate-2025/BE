@@ -10,7 +10,6 @@ import spring.tripmate.domain.enums.StyleType;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class PlanResponseDTO {
@@ -42,6 +41,8 @@ public class PlanResponseDTO {
         @Getter
         @Setter
         public static class CreatePlaceDTO {
+            @NotNull
+            private Long id;
             @NotBlank
             private String name;
             @NotNull
@@ -108,13 +109,5 @@ public class PlanResponseDTO {
             @NotNull
             private Integer dayNumber;
         }
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateDTO {
-        private Map<String, Object> updatedFields; // 수정된 필드 (key: 필드명, value: 수정된 값)
     }
 }

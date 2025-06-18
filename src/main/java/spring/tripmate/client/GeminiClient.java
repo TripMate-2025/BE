@@ -20,7 +20,7 @@ public class GeminiClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public String getTravelPlan(String prompt) {
+    public String requestGemini(String prompt) {
         // Gemini에 요청 전송
         String requestUrl = UriComponentsBuilder
                 .fromHttpUrl(apiUrl)
