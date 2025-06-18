@@ -2,6 +2,7 @@ package spring.tripmate.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import spring.tripmate.domain.Consumer;
 import spring.tripmate.domain.mapping.RoomMember;
@@ -13,6 +14,9 @@ import java.util.Optional;
 public interface RoomMemberDAO extends JpaRepository<RoomMember, RoomMemberId> {
 
 	Optional<RoomMember> findById(RoomMemberId memberId);
+
+	@Query("SELECT rm FROM RoomMember rm WHERE rm.member.id = :memberId")
+	List<RoomMember> findByMemberId(@Param("memberId") Long memberId);
 
 	RoomMember findById_ConsumerId(Long consumerId);
 

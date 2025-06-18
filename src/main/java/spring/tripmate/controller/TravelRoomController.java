@@ -9,6 +9,7 @@ import spring.tripmate.dto.TravelRoomResponseDTO;
 import spring.tripmate.service.TravelPlanService;
 import spring.tripmate.service.TravelRoomService;
 
+import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -50,4 +51,14 @@ public class TravelRoomController {
         ConsumerResponseDTO.RoomMembersDTO members = roomService.addMember(roomId, authHeader);
         return ApiResponse.onSuccess(members);
     }
+
+    @GetMapping
+    public ApiResponse<List<TravelRoomResponseDTO.RoomDTO>> getMyRooms(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        System.out.println("🔥🔥 GET /rooms 진입 성공");
+        List<TravelRoomResponseDTO.RoomDTO> rooms = roomService.getRoomsForConsumer(authHeader);
+        return ApiResponse.onSuccess(rooms);
+    }
+
 }

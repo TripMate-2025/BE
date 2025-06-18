@@ -153,4 +153,24 @@ public class TravelRoomService {
         return roomDAO.findById(roomId)
                 .orElseThrow(() -> new RoomHandler(ErrorStatus.PLAN_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public List<TravelRoomResponseDTO.RoomDTO> getRoomsForConsumer(String authHeader) {
+        Consumer consumer = getConsumerFromHeader(authHeader);
+
+        List<RoomMember> memberships = memberDAO.findByMemberId(consumer.getId());
+        List<TravelRoom> rooms = memberships.stream()
+                .map(RoomMember::getRoom)
+                .toList();
+
+        return rooms.stream()
+                .map(room -> {
+                    List<Consumer> members = room.getMembers().stream()
+                            .map(RoomMember::getMember)
+                            .toList();
+                    return TravelRoomConverter.toRoomDTO(room, members);
+                })
+                .toList();
+    }
+
 }
