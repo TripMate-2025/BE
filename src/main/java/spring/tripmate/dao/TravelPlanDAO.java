@@ -13,8 +13,8 @@ public interface TravelPlanDAO extends JpaRepository<TravelPlan, Long> {
     Page<TravelPlan> findByConsumerId(Long consumerId, Pageable pageable);
     Page<TravelPlan> findByThemeContaining(@Param("theme") String theme, Pageable pageable);
 
-    @Query("SELECT p FROM TravelPlan p WHERE p.destination LIKE CONCAT('%', :country, '%')")
-    Page<TravelPlan> findByCountry(@Param("country") String country, Pageable pageable);
+    @Query("SELECT DISTINCT p FROM TravelPlan p LEFT JOIN FETCH p.posts WHERE p.destination LIKE CONCAT('%', :country, '%')")
+    Page<TravelPlan> findByCountryWithPosts(@Param("country") String country, Pageable pageable);
 
     @Query("SELECT p FROM TravelPlan p LEFT JOIN FETCH p.places WHERE p.id = :planId")
     Optional<TravelPlan> findByIdWithPlaces(@Param("planId") Long planId);

@@ -40,6 +40,8 @@ public class TravelRoomResponseDTO {
         @AllArgsConstructor
         public static class PlanDTO{
             @NotNull
+            private Long planId;
+            @NotNull
             private String title;
             @NotNull
             private Date startDate;
