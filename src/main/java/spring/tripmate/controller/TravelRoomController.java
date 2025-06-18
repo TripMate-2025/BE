@@ -78,4 +78,13 @@ public class TravelRoomController {
         List<TravelRoomResponseDTO.RoomDTO> rooms = roomService.getRoomsForConsumer(authHeader);
         return ApiResponse.onSuccess(rooms);
     }
+
+    @GetMapping("/simple")
+    public ApiResponse<List<TravelRoomResponseDTO.SimpleRoomDTO>> getSimpleRooms(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        List<TravelRoomResponseDTO.SimpleRoomDTO> result = roomService.getSimpleRoomList(authHeader);
+        return ApiResponse.onSuccess(result);
+    }
+
 }

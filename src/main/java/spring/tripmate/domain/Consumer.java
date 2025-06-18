@@ -1,5 +1,6 @@
 package spring.tripmate.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -53,6 +54,7 @@ public class Consumer extends BaseEntity {
     private List<TravelPlan> plans = new ArrayList<>();
 
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PlaceComment> placeComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
