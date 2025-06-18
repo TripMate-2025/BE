@@ -30,8 +30,6 @@ public class TravelRoomResponseDTO {
         @AllArgsConstructor
         public static class PlanDTO{
             @NotNull
-            private Long planId;
-            @NotNull
             private String title;
             @NotNull
             private Date startDate;
@@ -51,6 +49,8 @@ public class TravelRoomResponseDTO {
             @Getter
             @Setter
             public static class PlaceDTO {
+                @NotNull
+                private Long placeId;
                 @NotBlank
                 private String name;
                 @NotNull
@@ -72,14 +72,4 @@ public class TravelRoomResponseDTO {
             }
         }
     }
-
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RoomInviteLinkDTO {
-        private String inviteLink;
-        private Long roomId;
-    }
 }
-

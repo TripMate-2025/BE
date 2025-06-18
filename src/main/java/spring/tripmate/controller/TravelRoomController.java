@@ -3,9 +3,7 @@ package spring.tripmate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import spring.tripmate.domain.apiPayload.ApiResponse;
-import spring.tripmate.dto.ConsumerResponseDTO;
-import spring.tripmate.dto.PlanResponseDTO;
-import spring.tripmate.dto.TravelRoomResponseDTO;
+import spring.tripmate.dto.*;
 import spring.tripmate.service.TravelPlanService;
 import spring.tripmate.service.TravelRoomService;
 
@@ -35,6 +33,26 @@ public class TravelRoomController {
         return ApiResponse.onSuccess(response);
     }
 
+    @DeleteMapping("/{roomId}/places/{placeId}")
+    public ApiResponse<?> deletePlace(
+            @PathVariable Long roomId,
+            @PathVariable Long placeId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        System.out.println("[DEBUG] 컨트롤러 deletePlace 호출 - roomId: " + roomId + ", placeId: " + placeId);
+        roomService.deletePlace(roomId, placeId, authHeader);
+        return ApiResponse.onSuccess("삭제 완료");
+    }
+
+    @PatchMapping("/{roomId}")
+    public ApiResponse<?> updateRoom(
+            @PathVariable Long roomId,
+            @RequestBody TravelRoomRequestDTO.UpdateDTO request,
+            @RequestHeader("Authorization") String authHeader) {
+
+        return ApiResponse.onSuccess(roomService.updateRoom(roomId, request, authHeader));
+    }
+
     @GetMapping("/{roomId}")
     public ApiResponse<TravelRoomResponseDTO.RoomDTO> getRoom(
             @PathVariable("roomId") Long roomId
@@ -60,5 +78,4 @@ public class TravelRoomController {
         List<TravelRoomResponseDTO.RoomDTO> rooms = roomService.getRoomsForConsumer(authHeader);
         return ApiResponse.onSuccess(rooms);
     }
-
 }
