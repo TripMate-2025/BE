@@ -22,6 +22,7 @@ import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
 import spring.tripmate.util.FileUtil;
+import org.springframework.data.domain.Sort;
 
 import java.util.*;
 import java.util.stream.Collectors;
