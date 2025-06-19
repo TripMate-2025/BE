@@ -21,6 +21,7 @@ import spring.tripmate.dto.PostRequestDTO;
 import spring.tripmate.dto.PostResponseDTO;
 import spring.tripmate.security.JwtProvider;
 import spring.tripmate.util.FileUtil;
+import org.springframework.data.domain.Sort;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,7 +136,7 @@ public class PostService {
             }
         }
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         List<Post> posts;
 
@@ -143,7 +144,7 @@ public class PostService {
             // 전체 게시글 중 최신순으로
             posts = postDAO.findAllByOrderByUpdatedAtDesc(pageable).getContent();
         }else {
-            Page<TravelPlan> plans = planDAO.findByCountry(country, pageable);
+            Page<TravelPlan> plans = planDAO.findByCountryWithPosts(country, pageable);
             List<TravelPlan> plansList = plans.getContent();
             posts = plansList.stream()
                     .flatMap(plan -> plan.getPosts().stream()) // 각 plan의 posts를 평탄화

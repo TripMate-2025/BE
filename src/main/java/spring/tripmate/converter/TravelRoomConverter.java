@@ -57,6 +57,7 @@ public class TravelRoomConverter {
 
         // plan DTO 생성
         var planDTO = TravelRoomResponseDTO.RoomDTO.PlanDTO.builder()
+                .planId(plan.getId())
                 .title(plan.getTitle())
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
