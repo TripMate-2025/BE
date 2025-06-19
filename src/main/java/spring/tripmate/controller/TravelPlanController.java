@@ -27,12 +27,4 @@ public class TravelPlanController {
         PlanResponseDTO.PlanDTO response = travelPlanService.getPlan(planId);
         return ApiResponse.onSuccess(response);
     }
-
-    @GetMapping
-    public ApiResponse<List<PlanResponseDTO.PlanDTO>> getPlansByTheme(@RequestParam("theme") String theme,
-                                                                      @RequestParam(name = "page", defaultValue = "0") int page,
-                                                                      @RequestParam(name = "size", defaultValue = "15") int size){
-        List<PlanResponseDTO.PlanDTO> response = travelPlanService.getPlansByTheme(theme, page, size);
-        return ApiResponse.onSuccess(response);
-    }
 }
